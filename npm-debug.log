@@ -1,0 +1,122 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/cread/.nvm/versions/node/v6.11.0/bin/node',
+1 verbose cli   '/Users/cread/.nvm/versions/node/v6.11.0/bin/npm',
+1 verbose cli   'publish' ]
+2 info using npm@3.10.10
+3 info using node@v6.11.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/cread/Development/node/hapi-form-authentication',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/cread/.npm/hapi-auth-form/0.0.1/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/cread/.npm correctMkdir not in flight; initializing
+10 info lifecycle hapi-auth-form@0.0.1~prepublish: hapi-auth-form@0.0.1
+11 silly lifecycle hapi-auth-form@0.0.1~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ '/Users/cread/.npm/hapi-auth-form/0.0.1/package.tgz',
+12 verbose tar pack   '/Users/cread/Development/node/hapi-form-authentication' ]
+13 verbose tarball /Users/cread/.npm/hapi-auth-form/0.0.1/package.tgz
+14 verbose folder /Users/cread/Development/node/hapi-form-authentication
+15 verbose addLocalTarball adding from inside cache /Users/cread/.npm/hapi-auth-form/0.0.1/package.tgz
+16 verbose correctMkdir /Users/cread/.npm correctMkdir not in flight; initializing
+17 silly cache afterAdd hapi-auth-form@0.0.1
+18 verbose afterAdd /Users/cread/.npm/hapi-auth-form/0.0.1/package/package.json not in flight; writing
+19 verbose correctMkdir /Users/cread/.npm correctMkdir not in flight; initializing
+20 verbose afterAdd /Users/cread/.npm/hapi-auth-form/0.0.1/package/package.json written
+21 silly publish { name: 'hapi-auth-form',
+21 silly publish   version: '0.0.1',
+21 silly publish   description: 'Form-based authentication for hapi apps',
+21 silly publish   main: 'index.js',
+21 silly publish   scripts: { test: 'mocha' },
+21 silly publish   author: { name: 'Charles Read' },
+21 silly publish   license: 'ISC',
+21 silly publish   devDependencies:
+21 silly publish    { chai: '^4.1.0',
+21 silly publish      hapi: '^16.5.0',
+21 silly publish      mocha: '^3.4.2',
+21 silly publish      request: '^2.81.0' },
+21 silly publish   keywords: [ 'hapi', 'form', 'authentication' ],
+21 silly publish   bugs:
+21 silly publish    { url: 'https://github.com/charlesread/hapi-auth-form/issues',
+21 silly publish      email: 'charles@charlesread.com' },
+21 silly publish   dependencies:
+21 silly publish    { boom: '^5.2.0',
+21 silly publish      debug: '^2.6.8',
+21 silly publish      'deep-extend': '^0.5.0',
+21 silly publish      joi: '^10.6.0',
+21 silly publish      marko: '^4.4.19',
+21 silly publish      randomatic: '^1.1.7',
+21 silly publish      yar: '^8.1.2',
+21 silly publish      'hapi-server-session': '^3.0.2' },
+21 silly publish   optionalDependencies: { 'hapi-server-session': '^3.0.2' },
+21 silly publish   readme: '[![Build Status](https://travis-ci.org/charlesread/hapi-auth-form.svg?branch=master)](https://travis-ci.org/charlesread/hapi-auth-form)\n\n# hapi-auth-form\n\nThere are a _ton_ of great authentication plugins for `hapi` out there, this is just another one, and it provides simple `<form>`-based authentication.\n\nCool stuff that `hapi-auth-form` gives you:\n\n* A simple plug-and-play authentication mechanism in only a few lines of code.\n* Custom login and logout pages\n\nCheck out the [example](https://github.com/charlesread/hapi-auth-form/tree/master/example) directory for examples!\n\n## Installation\n\n```bash\nnpm i -S hapi-form-auth\n```\n\n## Utilization\n\n```js\n\'use strict\'\n\nconst Hapi = require(\'hapi\')\n\nconst plugins = [\n  {\n    register: require(\'hapi-auth-form\'),\n    options: {\n      handler: function (username, password, callback) {\n        // if the password is "password" let them in\n        const isValid = password === \'password\'\n        // the callback takes two parameters; the first is a simple Boolean\n        // that indicates whether or not the user is valid, the second is an\n        // object that must contain, at a minimum, a `username` attribute,\n        // this object will accessible as `request.auth.credentials` in routes\n        callback(isValid, {username: username})\n      }\n    }\n  }\n]\n\nconst server = new Hapi.Server()\n\nserver.connection({\n  host: \'localhost\',\n  port: 8000\n})\n\nserver.register(plugins, function (err) {\n  if (err) {\n    throw err\n  }\n  // the first argument can really be anything, it\'s just an identifier that\n  // is to be used in a route\'s config.auth attribute, as shown below\n  server.auth.strategy(\'arbitraryString\', \'form\')\n  // an insecure route\n  server.route({\n    method: \'get\',\n    path: \'/\',\n    handler: function (request, reply) {\n      return reply(\'/\')\n    }\n  })\n  // a secure route\n  server.route({\n    method: \'get\',\n    path: \'/secure\',\n    handler: function (request, reply) {\n      return reply(\'secure, username: \' + request.auth.credentials.username)\n    },\n    config: {\n      auth: \'arbitraryString\'\n    }\n  })\n})\n\nserver.start((err) => {\n  if (err) {\n    throw err\n  }\n  console.log(\'Server running at:\', server.info.uri)\n})\n\n```\n\n## Configuration Options\n\n### Plugin-centric options\n\n| Name | Type | Default | Description |\n| --- | --- | --- | --- |\n| handler (required) | `function` |  | a `function` with signature `function(isValid, object)`. `isValid` should be a `Boolean` that indicates whether or not the user is valid, i.e. if their credentials are correct.  The `object` can be arbitrary, but it must contain a `username` attribute, it will be accessible via `request.auth.credentials` in routes. The `handler` function is where you will perform whatever logic you like to verify the authenticity of the credentials. |\n| loginPath | `string` | "/login" | This is the path of the login form, like where users will log in, `http://example.com/login`, for example. `hapi-auth-form` creates this route for you, you can just tell it what you want it named.|\n| postPath | `string` | "/login" | This is the path that the login form will actually `POST` to. `hapi-auth-form` creates this route for you, you can just tell it what you want it named. |\n| logoutPath | `string` | "/logout" | This is the path where users can logout, `http://example.com/logout`, for example, this route kills the users session. `hapi-auth-form` creates this route for you, you can just tell it what you want it named. |\n| redirectPath | `string` | "/"| If a user attempts to access a secure route they will be redirected to `loginPath`, upon successful authentication they will redirected back to the originally requested route.  But what if they access `loginPath` directly?  It wouldn\'t make much sense for them to be redirect _back_ to the login page now would it? To where will they be redirected upon successful authentication?  If you guessed `redirectPath` you\'re right! |\n| loginPageFunction | `function` | | Don\'t like the default login page/form? No worries, you can edit it here.  `loginPageFunction` should return the page that you\'d like rendered at `loginPath`.  That which this function returns is passed to [hapi\'s reply interface](https://hapijs.com/api#reply-interface), so it can be lots of things, like a `Stream` or a `string`.  The function has the signature `function(object)`, where `object` is an object that contains the value of `postPath`, so that you can dynamically determine where your `<form>` should post to. |\n| logoutPageFunction | `function` | | `logoutPageFunction` should return the page that you\'d like rendered at `loginPath`.  That which this function returns is passed to [hapi\'s reply interface](https://hapijs.com/api#reply-interface), so it can be lots of things, like a `Stream` or a `string`.  By default, logging out will just redirect the user back to `loginPath`. |\n\n### Additional Options\n\n`hapi-auth-form` makes use of sessions and cookies, it uses [yar](https://www.npmjs.com/package/yar) to do so.  You can override the default `yar` options with the `yar` attribute.  `hapi-auth-form` uses a fairly secure `yar` configuration, so you should be careful in tinkering with these options as they may have a drastic impact on the security of your site.  <strong style="color:red">You have been warned.</strong>\n\nOf particular importance is the `yar.cookieOptions.isSecure` attribute.  When set to `true` cookies <strong>will only be sent if the connection uses https</strong>.  This is a good thing.  This should be `true` in production environments.  By default `hapi-auth-form` uses `server.info.protocol` to determine if your application is serving over https and will set `yar.cookieOptions.isSecure` appropriately.  For reference, the default options are below.\n\n```js\nyar: {\n  storeBlank: false,\n  cookieOptions: {\n    password: randomize(\'*\', 256), // https://www.npmjs.com/package/randomatic\n    isSecure: server.info.protocol === \'https\',\n    isHttpOnly: true\n  }\n}\n```',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: '269e5e886478da919efd2dce45862a532ae88eea',
+21 silly publish   _id: 'hapi-auth-form@0.0.1',
+21 silly publish   _shasum: '1296ad62f2c93c39cf1f7f006f61f65854452b7b',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name hapi-auth-form
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry data Result {
+26 silly mapToRegistry   raw: 'hapi-auth-form',
+26 silly mapToRegistry   scope: null,
+26 silly mapToRegistry   escapedName: 'hapi-auth-form',
+26 silly mapToRegistry   name: 'hapi-auth-form',
+26 silly mapToRegistry   rawSpec: '',
+26 silly mapToRegistry   spec: 'latest',
+26 silly mapToRegistry   type: 'tag' }
+27 silly mapToRegistry uri https://registry.npmjs.org/hapi-auth-form
+28 verbose publish registryBase https://registry.npmjs.org/
+29 silly publish uploading /Users/cread/.npm/hapi-auth-form/0.0.1/package.tgz
+30 verbose request uri https://registry.npmjs.org/hapi-auth-form
+31 verbose request sending authorization for write operation
+32 info attempt registry request try #1 at 10:43:53 AM
+33 verbose request using bearer token for auth
+34 verbose request id 79e37e6ca277f01f
+35 http request PUT https://registry.npmjs.org/hapi-auth-form
+36 http 403 https://registry.npmjs.org/hapi-auth-form
+37 verbose headers { 'content-type': 'application/json',
+37 verbose headers   'cache-control': 'max-age=300',
+37 verbose headers   'content-length': '108',
+37 verbose headers   'accept-ranges': 'bytes',
+37 verbose headers   date: 'Mon, 24 Jul 2017 14:43:53 GMT',
+37 verbose headers   via: '1.1 varnish',
+37 verbose headers   connection: 'keep-alive',
+37 verbose headers   'x-served-by': 'cache-atl6251-ATL',
+37 verbose headers   'x-cache': 'MISS',
+37 verbose headers   'x-cache-hits': '0',
+37 verbose headers   'x-timer': 'S1500907433.060750,VS0,VE451',
+37 verbose headers   vary: 'Accept-Encoding, Accept' }
+38 verbose request invalidating /Users/cread/.npm/registry.npmjs.org/hapi-auth-form on PUT
+39 error publish Failed PUT 403
+40 verbose stack Error: you do not have permission to publish "hapi-auth-form". Are you logged in as the correct user? : hapi-auth-form
+40 verbose stack     at makeError (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+40 verbose stack     at CachingRegistryClient.<anonymous> (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:290:14)
+40 verbose stack     at Request._callback (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+40 verbose stack     at Request.self.callback (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/request/request.js:187:22)
+40 verbose stack     at emitTwo (events.js:106:13)
+40 verbose stack     at Request.emit (events.js:191:7)
+40 verbose stack     at Request.<anonymous> (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/request/request.js:1048:10)
+40 verbose stack     at emitOne (events.js:96:13)
+40 verbose stack     at Request.emit (events.js:188:7)
+40 verbose stack     at IncomingMessage.<anonymous> (/Users/cread/.nvm/versions/node/v6.11.0/lib/node_modules/npm/node_modules/request/request.js:969:12)
+41 verbose statusCode 403
+42 verbose pkgid hapi-auth-form
+43 verbose cwd /Users/cread/Development/node/hapi-form-authentication
+44 error Darwin 15.6.0
+45 error argv "/Users/cread/.nvm/versions/node/v6.11.0/bin/node" "/Users/cread/.nvm/versions/node/v6.11.0/bin/npm" "publish"
+46 error node v6.11.0
+47 error npm  v3.10.10
+48 error code E403
+49 error you do not have permission to publish "hapi-auth-form". Are you logged in as the correct user? : hapi-auth-form
+50 error If you need help, you may report this error at:
+50 error     <https://github.com/npm/npm/issues>
+51 verbose exit [ 1, true ]
