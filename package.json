@@ -1,18 +1,27 @@
 {
   "name": "hapi-auth-form",
   "version": "0.0.1",
-  "description": "",
+  "description": "Form-based authentication for hapi apps",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
-  "author": "",
+  "author": "Charles Read",
   "license": "ISC",
   "devDependencies": {
     "chai": "^4.1.0",
     "hapi": "^16.5.0",
     "mocha": "^3.4.2",
     "request": "^2.81.0"
+  },
+  "keywords": [
+    "hapi",
+    "form",
+    "authentication"
+  ],
+  "bugs": {
+    "url": "https://github.com/charlesread/hapi-auth-form/issues",
+    "email": "charles@charlesread.com"
   },
   "dependencies": {
     "boom": "^5.2.0",
