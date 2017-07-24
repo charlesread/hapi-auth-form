@@ -13,7 +13,7 @@ Check out the [example](https://github.com/charlesread/hapi-form-authentication/
 ## Installation
 
 ```bash
-npm i -S hapi-form-auth
+npm i -S hapi-form-authentication
 ```
 
 ## Utilization
