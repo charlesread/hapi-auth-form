@@ -111,6 +111,7 @@ internals.scheme = function () {
   const _scheme = {}
   _scheme.authenticate = function (request, reply) {
     console.log(request.auth)
+    console.log(request.auth.credentials)
     debug('_scheme.authenticate called')
     if (!request.yar.get('destination')) {
       debug('destination is not set, setting to request.path')
