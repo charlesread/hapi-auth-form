@@ -110,7 +110,8 @@ yar: {
   cookieOptions: {
     password: randomize('*', 256), // https://www.npmjs.com/package/randomatic
     isSecure: server.info.protocol === 'https',
-    isHttpOnly: true
+    isHttpOnly: true,
+    isSameSite: 'Strict'
   }
 }
 ```

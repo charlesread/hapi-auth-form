@@ -25,6 +25,8 @@ function processOptions(server, options) {
         password: randomize('*', 256),
         isSecure: server.info.protocol === 'https',
         isHttpOnly: true
+        // ,
+        // isSameSite: 'Strict'
       }
     }
   }
@@ -39,6 +41,10 @@ const plugin = function (server, options, next) {
   pluginOptions = processOptions(server, options)
   debug('plugin registered')
   debug('pluginOptions: %j', pluginOptions)
+  // server.ext('onRequest', function (request, reply) {
+  //   debug('received request for %s [%s]', request.path, request.method)
+  //   reply.continue()
+  // })
   server.auth.scheme('form', internals.scheme)
   server.register({
     register: require('yar'),
@@ -51,7 +57,6 @@ const plugin = function (server, options, next) {
       method: 'post',
       path: pluginOptions.postPath,
       handler: function (request, reply) {
-        debug('received request for %s', request.path)
         debug('destination: %s', request.yar.get('destination'))
         const username = request.payload.username
         const password = request.payload.password
@@ -88,7 +93,8 @@ const plugin = function (server, options, next) {
       method: 'get',
       path: pluginOptions.logoutPath,
       handler: function (request, reply) {
-        request.auth.credentials = {}
+        request.auth.isAuthenticated = false
+        request.auth.credentials = null
         request.yar.reset()
         return pluginOptions.logoutPageFunction ? reply(pluginOptions.logoutPageFunction()) : reply.redirect(pluginOptions.loginPath)
       }
@@ -104,16 +110,29 @@ plugin.attributes = {
 internals.scheme = function () {
   const _scheme = {}
   _scheme.authenticate = function (request, reply) {
+    console.log(request.auth)
     debug('_scheme.authenticate called')
-    debug('request for %s received', request.path)
-    request.yar.set('destination', request.path)
-    const credentials = request.yar.get('credentials')
+    if (!request.yar.get('destination')) {
+      debug('destination is not set, setting to request.path')
+      request.yar.set('destination', request.path)
+    }
+    debug('destination: %s', request.yar.get('destination'))
+    let credentials = request.auth.credentials
+    if (!credentials) {
+      debug('credentials not found in request.auth.credentials, checking yar')
+      credentials = request.yar.get('credentials')
+    }
     if (credentials) {
+      debug('credentials does exist')
       reply.continue({credentials})
       debug('request.auth.credentials:')
       debug(request.auth.credentials)
+      if (request.path === request.yar.get('destination')) {
+        debug('request.path matches destination')
+        // request.yar.clear('credentials')
+      }
     } else {
-      debug('credentials does not exist in yar')
+      debug('credentials does not exist')
       reply(null, null, {})
         .redirect(pluginOptions.loginPath)
     }
