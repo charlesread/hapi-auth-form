@@ -1,5 +1,5 @@
 {
-  "name": "hapi-form-authentication",
+  "name": "hapi-auth-form",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -18,6 +18,7 @@
     "boom": "^5.2.0",
     "debug": "^2.6.8",
     "deep-extend": "^0.5.0",
+    "joi": "^10.6.0",
     "marko": "^4.4.19",
     "randomatic": "^1.1.7",
     "yar": "^8.1.2"

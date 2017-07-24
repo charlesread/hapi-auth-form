@@ -7,24 +7,28 @@ const path = require('path')
 const deepExtend = require('deep-extend')
 const debug = require('debug')('hapi-form-authentication:plugin')
 const randomize = require('randomatic')
+const Joi = require('joi')
 
-const defaultOptions = {
-  postPath: '/login',
-  formPath: '/login',
-  logoutPath: '/logout',
-  redirectPath: '/',
-  loginPageFunction: function (data) {
-    const page = require(path.join(__dirname, 'static', 'login.marko'))
-    return page.stream(data)
-  },
-  yar: {
-    storeBlank: false,
-    cookieOptions: {
-      password: randomize('*', 256),
-      isSecure: false,
-      isHttpOnly: true
+function processOptions(server, options) {
+  const defaultOptions = {
+    postPath: '/login',
+    loginPath: '/login',
+    logoutPath: '/logout',
+    redirectPath: '/',
+    loginPageFunction: function (data) {
+      const page = require(path.join(__dirname, 'static', 'login.marko'))
+      return page.stream(data)
+    },
+    yar: {
+      storeBlank: false,
+      cookieOptions: {
+        password: randomize('*', 256),
+        isSecure: server.info.protocol === 'https',
+        isHttpOnly: true
+      }
     }
   }
+  return deepExtend({}, defaultOptions, options)
 }
 
 let pluginOptions
@@ -32,7 +36,7 @@ let pluginOptions
 const internals = {}
 
 const plugin = function (server, options, next) {
-  pluginOptions = deepExtend({}, defaultOptions, options)
+  pluginOptions = processOptions(server, options)
   debug('plugin registered')
   debug('pluginOptions: %j', pluginOptions)
   server.auth.scheme('form', internals.scheme)
@@ -49,9 +53,15 @@ const plugin = function (server, options, next) {
       handler: function (request, reply) {
         debug('received request for %s', request.path)
         debug('destination: %s', request.yar.get('destination'))
-        const username = encodeURI(request.payload.username)
+        const username = request.payload.username
         const password = request.payload.password
         debug('username: %s, password: %s', username, password)
+        if (!username || !password) {
+          return reply(pluginOptions.loginPageFunction({
+            isAuthenticated: false,
+            failure: true
+          })).code(401)
+        }
         options.handler(username, password, function (isValid, credentials) {
           if (isValid) {
             debug('credentials for %s are valid', username)
@@ -69,7 +79,7 @@ const plugin = function (server, options, next) {
     })
     server.route({
       method: 'get',
-      path: pluginOptions.formPath,
+      path: pluginOptions.loginPath,
       handler: function (request, reply) {
         return reply(pluginOptions.loginPageFunction({postPath: pluginOptions.postPath}))
       }
@@ -80,7 +90,7 @@ const plugin = function (server, options, next) {
       handler: function (request, reply) {
         request.auth.credentials = {}
         request.yar.reset()
-        return pluginOptions.logoutPageFunction ? reply(pluginOptions.logoutPageFunction()) : reply.redirect(pluginOptions.formPath)
+        return pluginOptions.logoutPageFunction ? reply(pluginOptions.logoutPageFunction()) : reply.redirect(pluginOptions.loginPath)
       }
     })
     next()
@@ -105,7 +115,7 @@ internals.scheme = function () {
     } else {
       debug('credentials does not exist in yar')
       reply(null, null, {})
-        .redirect(pluginOptions.formPath)
+        .redirect(pluginOptions.loginPath)
     }
   }
   return _scheme

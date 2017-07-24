@@ -82,7 +82,7 @@ describe('integration testing', function () {
             const isValid = password === 'password'
             callback(isValid, {username: username})
           },
-          formPath: '/pizza'
+          loginPath: '/pizza'
         }
       },
       function (err) {
@@ -105,6 +105,48 @@ describe('integration testing', function () {
               if (err) throw err
               httpResponse.statusCode.should.equal(302)
               httpResponse.headers.location.should.equal('/pizza')
+              done()
+            }
+          )
+        })
+      })
+  })
+
+  it('attempting to log in with no payload should return 400', function (done) {
+    server.register({
+        register: plugin,
+        options: {
+          handler: function (username, password, callback) {
+            const isValid = password === 'password'
+            callback(isValid, {username: username})
+          }
+        }
+      },
+      function (err) {
+        if (err) throw err
+        server.auth.strategy('arbitraryString', 'form')
+        server.route({
+          method,
+          path: '/secure',
+          config: {
+            auth: 'arbitraryString'
+          },
+          handler: function (request, reply) {
+            return reply('secure')
+          }
+        })
+        server.start(function (err) {
+          if (err) throw err
+          request(
+            {
+              url: 'http://localhost:9999/login',
+              method: 'post',
+              followRedirect: false,
+              formData: {}
+            },
+            function (err, httpResponse, body) {
+              if (err) throw err
+              httpResponse.statusCode.should.equal(400)
               done()
             }
           )
@@ -143,7 +185,8 @@ describe('integration testing', function () {
               method: 'post',
               followRedirect: false,
               formData: {
-                username: ''
+                username: '',
+                password: ''
               }
             },
             function (err, httpResponse, body) {
