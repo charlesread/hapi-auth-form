@@ -7,9 +7,8 @@ const path = require('path')
 const deepExtend = require('deep-extend')
 const debug = require('debug')('hapi-form-authentication:plugin')
 const randomize = require('randomatic')
-const Joi = require('joi')
 
-function processOptions(server, options) {
+function processOptions (server, options) {
   const defaultOptions = {
     postPath: '/login',
     loginPath: '/login',
@@ -24,9 +23,8 @@ function processOptions(server, options) {
       cookieOptions: {
         password: randomize('*', 256),
         isSecure: server.info.protocol === 'https',
-        isHttpOnly: true
-        // ,
-        // isSameSite: 'Strict'
+        isHttpOnly: true,
+        isSameSite: 'Strict'
       }
     }
   }
@@ -41,10 +39,10 @@ const plugin = function (server, options, next) {
   pluginOptions = processOptions(server, options)
   debug('plugin registered')
   debug('pluginOptions: %j', pluginOptions)
-  // server.ext('onRequest', function (request, reply) {
-  //   debug('received request for %s [%s]', request.path, request.method)
-  //   reply.continue()
-  // })
+  server.ext('onRequest', function (request, reply) {
+    debug('received request for %s [%s]', request.path, request.method)
+    reply.continue()
+  })
   server.auth.scheme('form', internals.scheme)
   server.register({
     register: require('yar'),
@@ -61,12 +59,6 @@ const plugin = function (server, options, next) {
         const username = request.payload.username
         const password = request.payload.password
         debug('username: %s, password: %s', username, password)
-        if (!username || !password) {
-          return reply(pluginOptions.loginPageFunction({
-            isAuthenticated: false,
-            failure: true
-          })).code(401)
-        }
         options.handler(username, password, function (isValid, credentials) {
           if (isValid) {
             debug('credentials for %s are valid', username)
@@ -110,28 +102,16 @@ plugin.attributes = {
 internals.scheme = function () {
   const _scheme = {}
   _scheme.authenticate = function (request, reply) {
-    console.log(request.auth)
-    console.log(request.auth.credentials)
     debug('_scheme.authenticate called')
     if (!request.yar.get('destination')) {
       debug('destination is not set, setting to request.path')
       request.yar.set('destination', request.path)
     }
     debug('destination: %s', request.yar.get('destination'))
-    let credentials = request.auth.credentials
-    if (!credentials) {
-      debug('credentials not found in request.auth.credentials, checking yar')
-      credentials = request.yar.get('credentials')
-    }
+    const credentials = request.yar.get('credentials')
     if (credentials) {
       debug('credentials does exist')
       reply.continue({credentials})
-      debug('request.auth.credentials:')
-      debug(request.auth.credentials)
-      if (request.path === request.yar.get('destination')) {
-        debug('request.path matches destination')
-        // request.yar.clear('credentials')
-      }
     } else {
       debug('credentials does not exist')
       reply(null, null, {})

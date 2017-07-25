@@ -16,7 +16,6 @@ const url = 'http://localhost:9999/secure'
 const method = 'get'
 
 describe('integration testing', function () {
-
   //
   beforeEach(function (done) {
     server = new Hapi.Server()
@@ -39,14 +38,14 @@ describe('integration testing', function () {
 
   it('secure endpoint should redirect to default login form when not logged in', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          }
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
         }
-      },
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -76,15 +75,15 @@ describe('integration testing', function () {
 
   it('secure endpoint should redirect to custom path login form when not logged in', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          },
-          loginPath: '/pizza'
-        }
-      },
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
+        },
+        loginPath: '/pizza'
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -114,14 +113,14 @@ describe('integration testing', function () {
 
   it('attempting to log in with no payload should return 400', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          }
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
         }
-      },
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -156,14 +155,14 @@ describe('integration testing', function () {
 
   it('attempting to log in with blank username and password should return 401', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          }
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
         }
-      },
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -201,14 +200,14 @@ describe('integration testing', function () {
 
   it('attempting to log in with good credentials should return 302 with location header set to /', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          }
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
         }
-      },
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -247,14 +246,14 @@ describe('integration testing', function () {
 
   it('attempting to log in with good credentials redirect to /', function (done) {
     server.register({
-        register: plugin,
-        options: {
-          handler: function (username, password, callback) {
-            const isValid = password === 'password'
-            callback(isValid, {username: username})
-          }
+      register: plugin,
+      options: {
+        handler: function (username, password, callback) {
+          const isValid = password === 'password'
+          callback(isValid, {username: username})
         }
-      },
+      }
+    },
       function (err) {
         if (err) throw err
         server.auth.strategy('arbitraryString', 'form')
@@ -296,5 +295,4 @@ describe('integration testing', function () {
         })
       })
   })
-
 })
