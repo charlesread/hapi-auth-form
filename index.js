@@ -4,39 +4,16 @@ require('marko/node-require')
 require('marko/compiler').defaultOptions.writeToDisk = false
 
 const path = require('path')
-const deepExtend = require('deep-extend')
 const debug = require('debug')('hapi-form-authentication:plugin')
-const randomize = require('randomatic')
 
-function processOptions (server, options) {
-  const defaultOptions = {
-    postPath: '/login',
-    loginPath: '/login',
-    logoutPath: '/logout',
-    redirectPath: '/',
-    loginPageFunction: function (data) {
-      const page = require(path.join(__dirname, 'static', 'login.marko'))
-      return page.stream(data)
-    },
-    yar: {
-      storeBlank: false,
-      cookieOptions: {
-        password: randomize('*', 256),
-        isSecure: server.info.protocol === 'https',
-        isHttpOnly: true,
-        isSameSite: 'Strict'
-      }
-    }
-  }
-  return deepExtend({}, defaultOptions, options)
-}
+const _options = require(path.join(__dirname, 'lib', 'options.js'))
 
 let pluginOptions
 
 const internals = {}
 
 const plugin = function (server, options, next) {
-  pluginOptions = processOptions(server, options)
+  pluginOptions = _options(server, options)
   debug('plugin registered')
   debug('pluginOptions: %j', pluginOptions)
   server.ext('onRequest', function (request, reply) {
@@ -67,8 +44,8 @@ const plugin = function (server, options, next) {
           } else {
             debug('credentials for %s are not valid', username)
             return reply(pluginOptions.loginPageFunction({
-              isAuthenticated: isValid,
-              failure: true
+              postPath: pluginOptions.postPath,
+              success: false
             })).code(401)
           }
         })
