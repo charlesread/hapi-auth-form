@@ -12,6 +12,7 @@
     "chai": "^4.1.0",
     "hapi": "^16.5.0",
     "mocha": "^3.4.2",
+    "pre-commit": "^1.2.2",
     "request": "^2.81.0"
   },
   "keywords": [
@@ -34,5 +35,8 @@
   },
   "optionalDependencies": {
     "hapi-server-session": "^3.0.2"
-  }
+  },
+  "pre-commit": [
+    "test"
+  ]
 }

@@ -12,7 +12,7 @@ const db = {
     roles: ['SUPERUSER']
   },
   'lread': {
-    name: 'Ladybug',
+    name: 'Ladybug Read',
     password: 'treats',
     roles: ['ADMIN']
   },
@@ -28,6 +28,7 @@ const plugins = [
     register: plugin,
     options: {
       handler: function (username, password, callback) {
+        // in practice you'd have a significantly more robust process here
         const user = db[username]
         if (!user) {
           return callback(false)
