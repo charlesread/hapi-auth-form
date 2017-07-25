@@ -1,6 +1,16 @@
 [![Build Status](https://travis-ci.org/charlesread/hapi-form-authentication.svg?branch=master)](https://travis-ci.org/charlesread/hapi-form-authentication)
 # hapi-form-authentication
 
+<!-- toc -->
+
+- [Installation](#installation)
+- [Utilization](#utilization)
+- [Configuration Options](#configuration-options)
+  * [Plugin-centric options](#plugin-centric-options)
+  * [Additional Options](#additional-options)
+
+<!-- tocstop -->
+
 There are a _ton_ of great authentication plugins for `hapi` out there, this is just another one, and it provides simple `<form>`-based authentication.
 
 Cool stuff that `hapi-form-authentication` gives you:
