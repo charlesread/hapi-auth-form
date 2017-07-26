@@ -1,6 +1,6 @@
 {
   "name": "hapi-form-authentication",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Form-based authentication for hapi apps",
   "main": "index.js",
   "scripts": {
