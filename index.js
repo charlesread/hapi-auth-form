@@ -39,7 +39,7 @@ const plugin = function (server, options, next) {
         options.handler(username, password, function (isValid, credentials) {
           if (isValid) {
             debug('credentials for %s are valid', username)
-            request.yar.set('credentials', credentials)
+            request.yar.set(pluginOptions.credentialsName, credentials)
             return reply.redirect(request.yar.get('destination') || pluginOptions.redirectPath)
           } else {
             debug('credentials for %s are not valid', username)
@@ -85,7 +85,7 @@ internals.scheme = function () {
       request.yar.set('destination', request.path)
     }
     debug('destination: %s', request.yar.get('destination'))
-    const credentials = request.yar.get('credentials')
+    const credentials = request.yar.get(pluginOptions.credentialsName)
     if (credentials) {
       debug('credentials does exist')
       reply.continue({credentials})
