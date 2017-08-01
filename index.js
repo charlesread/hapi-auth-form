@@ -42,7 +42,7 @@ const plugin = function (server, options, next) {
           if (isValid) {
             debug('credentials for %s are valid', username)
             request.yar.set(pluginOptions.credentialsName, credentials)
-            return reply.redirect(request.yar.get('destination') || pluginOptions.redirectPath)
+            return reply.redirect(request.yar.get('destination') || pluginOptions.loginSuccessRedirectPath || pluginOptions.redirectPath)
           } else {
             debug('credentials for %s are not valid', username)
             return reply(pluginOptions.loginPageFunction({
