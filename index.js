@@ -1,5 +1,7 @@
 'use strict'
 
+const co = require('bluebird-co').co
+
 require('marko/node-require')
 require('marko/compiler').defaultOptions.writeToDisk = false
 
@@ -13,20 +15,20 @@ let pluginOptions
 const internals = {}
 
 const plugin = function (server, options, next) {
-  pluginOptions = _options(server, options)
-  debug('plugin registered')
-  debug('pluginOptions: %j', pluginOptions)
-  server.ext('onRequest', function (request, reply) {
-    debug('received request for %s [%s]', request.path, request.method)
-    reply.continue()
-  })
-  server.auth.scheme('form', internals.scheme)
-  server.register({
-    register: require('yar'),
-    options: pluginOptions.yar
-  }, function (err) {
-    if (err) {
-      throw err
+  co(function *() {
+    pluginOptions = _options(server, options)
+    debug('plugin registered')
+    debug('pluginOptions: %j', pluginOptions)
+    server.ext('onRequest', function (request, reply) {
+      debug('received request for %s [%s]', request.path, request.method)
+      reply.continue()
+    })
+    server.auth.scheme('form', internals.scheme)
+    if (!server.registrations['yar']) {
+      yield server.register({
+        register: require('yar'),
+        options: pluginOptions.yar
+      })
     }
     server.route({
       method: 'post',
@@ -70,6 +72,9 @@ const plugin = function (server, options, next) {
     })
     next()
   })
+    .catch((err) => {
+      throw err
+    })
 }
 
 plugin.attributes = {

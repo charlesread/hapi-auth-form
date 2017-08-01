@@ -25,6 +25,8 @@
     "email": "charles@charlesread.com"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
+    "bluebird-co": "^2.2.0",
     "boom": "^5.2.0",
     "debug": "^2.6.8",
     "deep-extend": "^0.5.0",
